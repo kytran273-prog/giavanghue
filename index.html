@@ -18,12 +18,14 @@
   --bg:#faf6ee; --card:#fff; --ink:#2a1d12; --muted:#86745f; --line:#eadfcc;
   --gold:#b8860b; --gold-2:#f3d27a; --red:#b3261e; --up:#1e8e3e; --down:#c5221f;
   --shopee:#ee4d2d; --chip:#fbefd6;
+  --s1:#2a78d6; --s2:#b8860b; --grid:#efe6d6;
 }
 @media (prefers-color-scheme: dark){
   :root{
     --bg:#16120d; --card:#211b14; --ink:#f3e9d8; --muted:#a8977f; --line:#3a3024;
     --gold:#e2b44b; --gold-2:#7a5a14; --red:#ff8a80; --up:#5bd17b; --down:#ff7b72;
     --shopee:#ff7a5c; --chip:#2e2516;
+    --s1:#3987e5; --s2:#c98500; --grid:#30281d;
   }
 }
 *{box-sizing:border-box}
@@ -82,6 +84,26 @@ th small{display:block;font-weight:400}
 .follow a.grp{background:var(--chip);color:var(--ink);border:1px solid var(--line)}
 footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;line-height:1.6}
 .hidden{display:none!important}
+/* Giá 7 ngày: biểu đồ / bảng */
+.seg{display:inline-flex;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:2px}
+.seg button{border:0;background:none;color:var(--muted);font:600 .8rem inherit;font-family:inherit;
+  padding:6px 10px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-4px 0 10px}
+.tools .seg:last-child{margin-left:auto}
+.legend{display:flex;gap:14px;font-size:.82rem;color:var(--muted);margin-bottom:4px}
+.legend i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:5px}
+.chart{position:relative;touch-action:pan-y}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .ax{font-size:11px;fill:var(--muted)}
+.chart .dl{font-size:11.5px;font-weight:700;fill:var(--ink)}
+.tip{position:absolute;top:0;pointer-events:none;background:var(--card);border:1px solid var(--line);
+  border-radius:10px;padding:7px 10px;font-size:.78rem;box-shadow:0 4px 14px rgba(0,0,0,.14);white-space:nowrap}
+.tip .tt{color:var(--muted);margin-bottom:2px}
+.tip .tr{display:flex;align-items:center;gap:6px}
+.tip .tr i{width:12px;border-top:2px solid}
+.tip .tr b{font-size:.9rem}
+.tip .tr span{color:var(--muted)}
 /* Khung deal nổi bật dưới bảng giá */
 .spot{display:grid;grid-template-columns:1fr auto;grid-template-areas:"k b" "t b" "s b";column-gap:12px;
   margin-top:14px;padding:12px 14px;border-radius:14px;text-decoration:none;color:var(--ink);
@@ -202,7 +224,23 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;lin
 
   <section class="card" aria-labelledby="ls">
     <h2 id="ls">📅 Giá 7 ngày gần đây</h2>
-    <div class="tbl"><table><thead><tr><th>Ngày</th><th>Duy Mong<small>mua / bán</small></th><th>Rồng Vàng<small>mua / bán</small></th></tr></thead><tbody><tr><td>T5 12/11</td><td>12.800 / 13.050</td><td>12.850 / 13.150</td></tr><tr><td>T4 11/11</td><td>12.900 / 13.150</td><td>12.950 / 13.250</td></tr><tr><td>T3 10/11</td><td>13.000 / 13.250</td><td>13.100 / 13.400</td></tr><tr><td>T2 09/11</td><td>13.050 / 13.300</td><td>13.100 / 13.400</td></tr><tr><td>T7 07/11</td><td>13.000 / 13.250</td><td>13.050 / 13.350</td></tr><tr><td>T6 06/11</td><td>12.950 / 13.200</td><td>13.000 / 13.300</td></tr><tr><td>T5 05/11</td><td>13.100 / 13.350</td><td>13.150 / 13.450</td></tr></tbody></table></div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Kiểu xem">
+        <button type="button" data-view="chart" aria-pressed="true">📈 Biểu đồ</button>
+        <button type="button" data-view="table" aria-pressed="false">Bảng giá</button>
+      </div>
+      <div class="seg" role="group" aria-label="Loại giá" id="kind">
+        <button type="button" data-k="1" aria-pressed="true">Bán ra</button>
+        <button type="button" data-k="0" aria-pressed="false">Mua vào</button>
+      </div>
+    </div>
+    <div id="v-chart">
+      <div class="legend" id="legend"></div>
+      <div class="chart" id="chart"><div class="tip hidden" id="tip"></div></div>
+      <p class="unit">Nghìn đồng/chỉ. Chạm hoặc rê chuột lên biểu đồ để xem giá từng lúc.</p>
+    </div>
+    <div class="tbl hidden" id="v-table"><table><thead><tr><th>Ngày</th><th>Duy Mong<small>mua / bán</small></th><th>Rồng Vàng<small>mua / bán</small></th></tr></thead><tbody><tr><td>T5 12/11</td><td>12.800 / 13.050</td><td>12.850 / 13.150</td></tr><tr><td>T4 11/11</td><td>12.900 / 13.150</td><td>12.950 / 13.250</td></tr><tr><td>T3 10/11</td><td>13.000 / 13.250</td><td>13.100 / 13.400</td></tr><tr><td>T2 09/11</td><td>13.050 / 13.300</td><td>13.100 / 13.400</td></tr><tr><td>T7 07/11</td><td>13.000 / 13.250</td><td>13.050 / 13.350</td></tr><tr><td>T6 06/11</td><td>12.950 / 13.200</td><td>13.000 / 13.300</td></tr><tr><td>T5 05/11</td><td>13.100 / 13.350</td><td>13.150 / 13.450</td></tr></tbody></table></div>
+    <script type="application/json" id="chart-data">{"shops": [{"id": "duy_mong", "name": "Duy Mong"}, {"id": "rong_vang", "name": "Rồng Vàng"}], "now": "2026-11-12T11:38+07:00", "pts": [{"t": "2026-11-05T00:00", "duy_mong": [12750, 13000], "rong_vang": [12800, 13100]}, {"t": "2026-11-05T09:31", "duy_mong": [13050, 13300], "rong_vang": [13100, 13400]}, {"t": "2026-11-05T10:53", "duy_mong": [13100, 13350], "rong_vang": [13100, 13400]}, {"t": "2026-11-05T14:23", "duy_mong": [13100, 13350], "rong_vang": [13150, 13450]}, {"t": "2026-11-06T09:00", "duy_mong": [13050, 13300], "rong_vang": [13100, 13400]}, {"t": "2026-11-06T10:31", "duy_mong": [13000, 13250], "rong_vang": [13100, 13400]}, {"t": "2026-11-06T11:02", "duy_mong": [13000, 13250], "rong_vang": [13050, 13350]}, {"t": "2026-11-06T11:32", "duy_mong": [12900, 13150], "rong_vang": [13050, 13350]}, {"t": "2026-11-06T12:32", "duy_mong": [12900, 13150], "rong_vang": [12950, 13250]}, {"t": "2026-11-06T16:05", "duy_mong": [12950, 13200], "rong_vang": [12950, 13250]}, {"t": "2026-11-06T16:35", "duy_mong": [12950, 13200], "rong_vang": [13000, 13300]}, {"t": "2026-11-07T09:31", "duy_mong": [13000, 13250], "rong_vang": [13050, 13350]}, {"t": "2026-11-09T09:00", "duy_mong": [13100, 13350], "rong_vang": [13150, 13450]}, {"t": "2026-11-09T12:51", "duy_mong": [13050, 13300], "rong_vang": [13150, 13450]}, {"t": "2026-11-09T15:07", "duy_mong": [13050, 13300], "rong_vang": [13100, 13400]}, {"t": "2026-11-10T09:00", "duy_mong": [13050, 13300], "rong_vang": [13150, 13450]}, {"t": "2026-11-10T14:35", "duy_mong": [13050, 13300], "rong_vang": [13100, 13400]}, {"t": "2026-11-10T17:43", "duy_mong": [13000, 13250], "rong_vang": [13100, 13400]}, {"t": "2026-11-11T09:00", "duy_mong": [12900, 13150], "rong_vang": [13000, 13300]}, {"t": "2026-11-11T14:29", "duy_mong": [12900, 13150], "rong_vang": [12950, 13250]}, {"t": "2026-11-12T09:15", "duy_mong": [12850, 13100], "rong_vang": [12900, 13200]}, {"t": "2026-11-12T10:58", "duy_mong": [12800, 13050], "rong_vang": [12900, 13200]}, {"t": "2026-11-12T11:20", "duy_mong": [12800, 13050], "rong_vang": [12850, 13150]}]}</script>
   </section>
 
   <section class="card">
@@ -259,6 +297,124 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;lin
       try { sessionStorage.setItem("barClosed", "1"); } catch (e) {}
     });
   } else bar.style.display = "none";
+
+  // ---------- Biểu đồ giá 7 ngày ----------
+  (function(){
+    var box = document.getElementById("chart"), tip = document.getElementById("tip");
+    var D; try { D = JSON.parse(document.getElementById("chart-data").textContent); } catch (e) { return; }
+    if (!D.pts || !D.pts.length) { document.getElementById("v-chart").classList.add("hidden");
+      document.getElementById("v-table").classList.remove("hidden"); return; }
+    var NS = "http://www.w3.org/2000/svg", K = 1, WD = ["CN","T2","T3","T4","T5","T6","T7"];
+    var COL = ["var(--s1)", "var(--s2)"];
+    var tms = D.pts.map(function(p){ return new Date(p.t).getTime(); });
+    var tEnd = Math.max(new Date(D.now).getTime(), tms[tms.length - 1]);
+    function fmt(v){ return v.toLocaleString("vi-VN"); }
+    function hhmm(d){ return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+    function dm(d){ return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2); }
+    function el(n, a, p){ var e = document.createElementNS(NS, n); for (var k in a) e.setAttribute(k, a[k]);
+      if (p) p.appendChild(e); return e; }
+    // chú thích
+    var lg = document.getElementById("legend");
+    D.shops.forEach(function(s, i){ var sp = document.createElement("span"), ic = document.createElement("i");
+      ic.style.borderColor = COL[i]; sp.appendChild(ic); sp.appendChild(document.createTextNode(s.name)); lg.appendChild(sp); });
+    function valAt(i, sid){ for (var j = i; j >= 0; j--) if (D.pts[j][sid]) return D.pts[j][sid][K]; return null; }
+    var svg, cross, dots, X, Y, W, H, L = 8, R = 62, T = 10, B = 26;
+    function draw(){
+      if (svg) svg.remove();
+      W = Math.max(280, box.clientWidth); H = Math.round(Math.min(300, Math.max(210, W * 0.58)));
+      svg = el("svg", {viewBox: "0 0 " + W + " " + H, role: "img", "aria-label": "Biểu đồ giá vàng 7 ngày"});
+      box.insertBefore(svg, tip);
+      var vals = []; D.pts.forEach(function(p){ D.shops.forEach(function(s){ if (p[s.id]) vals.push(p[s.id][K]); }); });
+      var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), step = 50;
+      while ((hi - lo) / step > 5) step *= 2;
+      lo = Math.floor(lo / step) * step - (lo % step === 0 ? step : 0); hi = Math.ceil(hi / step) * step;
+      if (hi - lo < step * 2) hi = lo + step * 2;
+      var t0 = tms[0];
+      X = function(t){ return L + (t - t0) / Math.max(1, tEnd - t0) * (W - L - R); };
+      Y = function(v){ return T + (hi - v) / (hi - lo) * (H - T - B); };
+      var ticks = [];
+      for (var v = lo; v <= hi; v += step) {
+        el("line", {x1: L, x2: W - R, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1}, svg);
+        var tx = el("text", {x: W - R + 6, y: Y(v) + 4, "class": "ax"}, svg); tx.textContent = fmt(v);
+        ticks.push(tx);
+      }
+      // nhãn ngày ở mốc 0h
+      var d = new Date(t0); d.setHours(0, 0, 0, 0); if (d.getTime() < t0) d.setDate(d.getDate() + 1); var lastX = -99;
+      for (; d.getTime() <= tEnd; d.setDate(d.getDate() + 1)) {
+        var x = X(d.getTime());
+        el("line", {x1: x, x2: x, y1: H - B, y2: H - B + 4, stroke: "var(--line)"}, svg);
+        if (x - lastX < 54 || x > W - R - 4) continue; lastX = x;
+        var lt = el("text", {x: x + 3, y: H - 8, "class": "ax"}, svg); lt.textContent = WD[d.getDay()] + " " + dm(d);
+      }
+      el("line", {x1: L, x2: W - R, y1: H - B, y2: H - B, stroke: "var(--line)"}, svg);
+      var ends = [];
+      D.shops.forEach(function(s, i){
+        var pts = [];
+        D.pts.forEach(function(p, j){ var v = valAt(j, s.id); if (v != null) pts.push([X(tms[j]), Y(v)]); });
+        if (!pts.length) return;
+        var lv = valAt(D.pts.length - 1, s.id); pts.push([X(tEnd), Y(lv)]);
+        el("polyline", {points: pts.map(function(q){ return q[0].toFixed(1) + "," + q[1].toFixed(1); }).join(" "),
+          fill: "none", stroke: COL[i], "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round"}, svg);
+        el("circle", {cx: pts[pts.length - 1][0], cy: pts[pts.length - 1][1], r: 4, fill: COL[i],
+          stroke: "var(--card)", "stroke-width": 2}, svg);
+        ends.push({y: pts[pts.length - 1][1], v: lv, i: i});
+      });
+      // nhãn giá hiện tại ở cuối đường (né nhau)
+      ends.sort(function(a, b){ return a.y - b.y; });
+      for (var e = 1; e < ends.length; e++) if (ends[e].y - ends[e - 1].y < 14) ends[e].y = ends[e - 1].y + 14;
+      ticks.forEach(function(tx){ var ty = +tx.getAttribute("y") - 4;
+        if (ends.some(function(o){ return Math.abs(o.y - ty) < 16; })) tx.remove(); });
+      ends.forEach(function(o){
+        var g = el("rect", {x: W - R + 2, y: o.y - 9, width: R - 4, height: 18, rx: 4, fill: "var(--card)"}, svg);
+        var t = el("text", {x: W - R + 6, y: o.y + 4, "class": "dl"}, svg); t.textContent = fmt(o.v);
+        t.setAttribute("fill", "var(--ink)"); g.setAttribute("stroke", COL[o.i]); g.setAttribute("stroke-width", 1.5);
+      });
+      cross = el("line", {y1: T, y2: H - B, stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "3 3",
+        visibility: "hidden"}, svg);
+      dots = D.shops.map(function(s, i){ return el("circle", {r: 4.5, fill: COL[i], stroke: "var(--card)",
+        "stroke-width": 2, visibility: "hidden"}, svg); });
+    }
+    function hover(ev){
+      var r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) * W / r.width;
+      var best = 0, bd = 1e9;
+      tms.forEach(function(t, j){ var dd = Math.abs(X(t) - sx); if (dd < bd) { bd = dd; best = j; } });
+      var x = X(tms[best]);
+      cross.setAttribute("x1", x); cross.setAttribute("x2", x); cross.setAttribute("visibility", "visible");
+      while (tip.firstChild) tip.removeChild(tip.firstChild);
+      var dt = new Date(tms[best]), hd = document.createElement("div"); hd.className = "tt";
+      hd.textContent = WD[dt.getDay()] + " " + dm(dt) + " lúc " + hhmm(dt) + (K ? " · bán ra" : " · mua vào");
+      tip.appendChild(hd);
+      D.shops.forEach(function(s, i){
+        var v = valAt(best, s.id);
+        if (v == null) { dots[i].setAttribute("visibility", "hidden"); return; }
+        dots[i].setAttribute("cx", x); dots[i].setAttribute("cy", Y(v)); dots[i].setAttribute("visibility", "visible");
+        var row = document.createElement("div"), ic = document.createElement("i"), b = document.createElement("b"),
+          n = document.createElement("span");
+        row.className = "tr"; ic.style.borderColor = COL[i]; b.textContent = fmt(v); n.textContent = s.name;
+        row.appendChild(ic); row.appendChild(b); row.appendChild(n); tip.appendChild(row);
+      });
+      tip.classList.remove("hidden");
+      var px = x * r.width / W, tw = tip.offsetWidth;
+      tip.style.left = Math.max(0, Math.min(r.width - tw, px + 12 + tw > r.width ? px - tw - 12 : px + 12)) + "px";
+    }
+    function out(){ if (!cross) return; cross.setAttribute("visibility", "hidden");
+      dots.forEach(function(c){ c.setAttribute("visibility", "hidden"); }); tip.classList.add("hidden"); }
+    box.addEventListener("pointermove", hover); box.addEventListener("pointerdown", hover);
+    box.addEventListener("pointerleave", out);
+    draw();
+    var rt; window.addEventListener("resize", function(){ clearTimeout(rt); rt = setTimeout(draw, 150); });
+    document.querySelectorAll("#kind button").forEach(function(b){ b.addEventListener("click", function(){
+      K = +b.getAttribute("data-k");
+      document.querySelectorAll("#kind button").forEach(function(o){ o.setAttribute("aria-pressed", o === b); });
+      out(); draw(); }); });
+    document.querySelectorAll("[data-view]").forEach(function(b){ b.addEventListener("click", function(){
+      var tbl = b.getAttribute("data-view") === "table";
+      document.querySelectorAll("[data-view]").forEach(function(o){ o.setAttribute("aria-pressed", o === b); });
+      document.getElementById("v-chart").classList.toggle("hidden", tbl);
+      document.getElementById("v-table").classList.toggle("hidden", !tbl);
+      document.getElementById("kind").classList.toggle("hidden", tbl);
+      if (!tbl) draw(); }); });
+  })();
   var codes = document.querySelectorAll("#codes .voucher");
   if (codes.length && document.querySelectorAll("#codes .voucher:not(.hidden)").length === 0)
     document.getElementById("codes-empty").classList.remove("hidden");
