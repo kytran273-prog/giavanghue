@@ -82,6 +82,29 @@ th small{display:block;font-weight:400}
 .follow a.grp{background:var(--chip);color:var(--ink);border:1px solid var(--line)}
 footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;line-height:1.6}
 .hidden{display:none!important}
+/* Khung deal nổi bật dưới bảng giá */
+.spot{display:grid;grid-template-columns:1fr auto;grid-template-areas:"k b" "t b" "s b";column-gap:12px;
+  margin-top:14px;padding:12px 14px;border-radius:14px;text-decoration:none;color:var(--ink);
+  background:linear-gradient(135deg,#fff1ec,#ffe3d9);border:1px solid #ffc9b8}
+.spot .sk{grid-area:k;font-size:.75rem;font-weight:600;color:var(--shopee)}
+.spot .st{grid-area:t;font-weight:800;font-size:1rem;line-height:1.3}
+.spot .ss{grid-area:s;font-size:.85rem;color:var(--muted)}
+.spot .ss b{color:var(--shopee);font-size:.95rem}
+.spot .sb{grid-area:b;align-self:center;background:var(--shopee);color:#fff;font-weight:700;font-size:.85rem;
+  padding:10px 12px;border-radius:10px;white-space:nowrap}
+.spot:active{transform:scale(.99)}
+@media (prefers-color-scheme: dark){.spot{background:linear-gradient(135deg,#3a1d14,#2b1610);border-color:#5a2a1c}}
+/* Thanh mã giảm giá dính đáy màn hình (chỉ điện thoại) */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:50;display:none;align-items:center;gap:8px;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--shopee);color:#fff;
+  box-shadow:0 -2px 10px rgba(0,0,0,.18);transform:translateY(110%);transition:transform .25s}
+.bar.show{transform:none}
+.bar a{flex:1;color:#fff;text-decoration:none;font-weight:600;font-size:.9rem;overflow:hidden;
+  white-space:nowrap;text-overflow:ellipsis}
+.bar a b{display:inline-block;margin-left:4px}
+.bar button{border:0;background:rgba(255,255,255,.2);color:#fff;font-size:1rem;width:32px;height:32px;
+  border-radius:50%;cursor:pointer;flex:none}
+@media (max-width:760px){.bar{display:flex}body.has-bar main{padding-bottom:84px}}
 @media (max-width:360px){.pair b{font-size:1.35rem}.deals{grid-template-columns:1fr}}
 </style>
 </head>
@@ -109,6 +132,35 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;lin
         </div>
       </div>
     <p class="unit">▲▼ so với lần cập nhật trước. Giá tham khảo, anh chị gọi tiệm để chốt giá.</p>
+    <div id="spots">
+    <a class="spot hidden" href="https://s.shopee.vn/7VHtHOKPFA" target="_blank" rel="nofollow sponsored noopener"
+       data-exp="2026-11-18T23:59+07:00" data-bar="https://s.shopee.vn/7VHtHOKPFA" data-bartext="🔥 Săn sale 11.11 trên Shopee">
+      <span class="sk">🔥 Đang sale trên Shopee</span>
+      <span class="st">Săn sale 11.11 trên Shopee</span>
+      <span class="ss">Giá ưu đãi hôm nay</span>
+      <span class="sb">Xem ngay ›</span>
+    </a>
+    <a class="spot hidden" href="https://s.shopee.vn/50aNsSD56y" target="_blank" rel="nofollow sponsored noopener"
+       data-exp="" data-bar="https://s.shopee.vn/50aNsSD56y" data-bartext="🔥 Két sắt mini thông minh">
+      <span class="sk">🔥 Đang sale trên Shopee</span>
+      <span class="st">Két sắt mini thông minh</span>
+      <span class="ss">Giá ưu đãi hôm nay</span>
+      <span class="sb">Xem ngay ›</span>
+    </a>
+    <a class="spot hidden" href="https://s.shopee.vn/3qOQUOVWLu" target="_blank" rel="nofollow sponsored noopener"
+       data-exp="" data-bar="https://s.shopee.vn/3qOQUOVWLu" data-bartext="🔥 Hộp đựng trang sức">
+      <span class="sk">🔥 Đang sale trên Shopee</span>
+      <span class="st">Hộp đựng trang sức</span>
+      <span class="ss">Giá ưu đãi hôm nay</span>
+      <span class="sb">Xem ngay ›</span>
+    </a>
+    <a class="spot hidden" href="https://s.shopee.vn/5fq4fnEriH" target="_blank" rel="nofollow sponsored noopener"
+       data-exp="" data-bar="https://s.shopee.vn/5fq4fnEriH" data-bartext="🔥 Cân tiểu li cân vàng">
+      <span class="sk">🔥 Đang sale trên Shopee</span>
+      <span class="st">Cân tiểu li cân vàng</span>
+      <span class="ss">Giá ưu đãi hôm nay</span>
+      <span class="sb">Xem ngay ›</span>
+    </a></div>
   </section>
 
   <section class="card" aria-labelledby="ma">
@@ -167,6 +219,10 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;lin
     © 2026 Giá Vàng 24k Huế Hôm Nay
   </footer>
 </main>
+<div class="bar" id="bar" role="complementary" aria-label="Ưu đãi Shopee">
+  <a id="bar-link" href="#ma">🎟 Mã giảm giá + deal Shopee hôm nay <b>›</b></a>
+  <button type="button" id="bar-x" aria-label="Đóng">✕</button>
+</div>
 <script>
 (function(){
   var now = new Date();
@@ -175,6 +231,34 @@ footer{text-align:center;color:var(--muted);font-size:.78rem;margin-top:24px;lin
     var e = el.getAttribute("data-exp");
     if (e && new Date(e) < now) el.classList.add("hidden");
   });
+  // Khung nổi bật: hiện ứng viên đầu tiên còn hạn
+  var spot = null;
+  document.querySelectorAll("#spots .spot").forEach(function(el){
+    var e = el.getAttribute("data-exp");
+    if (!spot && !(e && new Date(e) < now)) { spot = el; el.classList.remove("hidden"); }
+  });
+  // Thanh dính đáy: hiện khi đã cuộn qua bảng giá, bấm ✕ thì ẩn trong phiên này
+  var bar = document.getElementById("bar"), closed = false;
+  try { closed = sessionStorage.getItem("barClosed") === "1"; } catch (e) {}
+  if (!closed) {
+    var link = document.getElementById("bar-link");
+    if (spot) {
+      var href = spot.getAttribute("data-bar");
+      link.href = href;
+      link.innerHTML = "";
+      link.appendChild(document.createTextNode(spot.getAttribute("data-bartext") + " "));
+      var b = document.createElement("b"); b.textContent = "›"; link.appendChild(b);
+      if (href.charAt(0) !== "#") { link.target = "_blank"; link.rel = "nofollow sponsored noopener"; }
+    }
+    document.body.classList.add("has-bar");
+    var onScroll = function(){ bar.classList.toggle("show", window.scrollY > 220); };
+    window.addEventListener("scroll", onScroll, {passive: true}); onScroll();
+    document.getElementById("bar-x").addEventListener("click", function(){
+      bar.classList.remove("show"); document.body.classList.remove("has-bar");
+      setTimeout(function(){ bar.style.display = "none"; }, 300);
+      try { sessionStorage.setItem("barClosed", "1"); } catch (e) {}
+    });
+  } else bar.style.display = "none";
   var codes = document.querySelectorAll("#codes .voucher");
   if (codes.length && document.querySelectorAll("#codes .voucher:not(.hidden)").length === 0)
     document.getElementById("codes-empty").classList.remove("hidden");
